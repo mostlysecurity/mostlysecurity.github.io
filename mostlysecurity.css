@@ -14,11 +14,50 @@
     padding-bottom: 8px;
 }
 
-
-.bgshade {
-    background-color: rgba(136,136,136,0.95);
+.disclaimer {
+    font-size: small;
+    color: #FFFFFF;
 }
 
+.purple a {
+    color: #232323;
+}
+
+.green a {
+    color: #232323;
+}
+
+.orange a {
+    color: #232323;
+}
+
+.red a {
+    color: #232323; 
+}
+
+
+
+.bgshade {
+    padding: 10pt 10pt 10pt 20pt; 
+    margin-bottom: 10pt;
+    background-color: #888888;
+}
+
+.bgshade.purple {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #663399 88%, #663399 100%);
+}
+
+.bgshade.green {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #339966 88%, #339966 100%);
+}
+
+.bgshade.orange {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #FF9900 88%, #FF9900 100%);
+}
+
+.bgshade.red {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #FF3333 88%, #FF3333 100%);
+}
 
 strong {
     font-size: larger;
