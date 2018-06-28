@@ -21,22 +21,51 @@
 
 strong {
     font-size: larger;
+    letter-spacing: -3px;
+    text-shadow: 1px 1px 0px #232323;
 }
+
+
+a {
+    color: #232323;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ffffff;
+}
+
 
 .purple a {
     color: #232323;
+}
+
+.purple a:hover {
+    color: #663399;
 }
 
 .green a {
     color: #232323;
 }
 
+.green a:hover {
+    color: #FFFFFF;
+}
+
 .orange a {
     color: #232323;
 }
 
+.orange a:hover {
+    color: #FF9900;
+}
+
 .red a {
     color: #232323; 
+}
+
+.red a:hover {
+    color: #FFFFFF; 
 }
 
 
