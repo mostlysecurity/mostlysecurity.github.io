@@ -3,12 +3,13 @@
 (As you can see, this is high tech!)
 
 
-** Font ** Avenir Font Family
+###Font
+Avenir Font Family
 
-** Colors **
+###Colors
 
-| Color | - | Web | Notes |
-|-------|---|-----|-------|
+| Name | - | Web | Notes |
+|------|---|-----|-------|
 | Purple | ![#663399](https://placehold.it/30/663399/000000?text=+) | #663399 | |
 | Green | ![#339966](https://placehold.it/30/339966/000000?text=+) | #339966 | |
 | Orangy | ![#FF9900](https://placehold.it/30/FF9900/000000?text=+) | #FF9900 | |
