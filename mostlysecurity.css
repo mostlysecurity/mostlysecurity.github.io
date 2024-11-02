@@ -19,12 +19,11 @@
     color: #FFFFFF;
 }
 
-strong {
-    font-size: larger;
-    letter-spacing: -3px;
-    text-shadow: 1px 1px 0px #232323;
+.about {
+    color: #232323;
+    font-size: smaller;
+    line-height: 1.2;
 }
-
 
 a {
     color: #232323;
@@ -76,48 +75,29 @@ a:hover {
 
 .bgshade {
     padding: 10pt 10pt 10pt 20pt; 
-    margin-bottom: 10pt;
-    background-color: #888888;
+    margin: 10pt;
+    background-color: #AAAAAA;
     /* box-shadow: 0px 0px 1px 0px #232323; */
-    box-shadow: -0.1px -0.1px 0px 1px #888888;
+    box-shadow: 3px 3px 12px 1px #232323;
 }
 
 .bgshade.purple {
     border: 3pt #663399 solid;
     /* background: linear-gradient(135deg, #888888 0%, #888888 95%, #663399 95%, #663399 100%) */
-    background: linear-gradient(135deg, #663399 0%, #663399 5%, #888888 5%, #888888 100%);
+    background: linear-gradient(135deg, #663399 0%, #663399 5%, #AAAAAA 5%, #AAAAAA 100%);
 }
 
 .bgshade.green {
     border: 3pt #339966 solid;
-    background: linear-gradient(135deg, #339966 0%, #339966 5%, #888888 5%, #888888 100%);
+    background: linear-gradient(135deg, #339966 0%, #339966 5%, #AAAAAA 5%, #AAAAAA 100%);
 }
 
 .bgshade.orange {
     border: 3pt #FF9900 solid;
-    background: linear-gradient(135deg, #FF9900 0%, #FF9900 5%, #888888 5%, #888888 100%);
+    background: linear-gradient(135deg, #FF9900 0%, #FF9900 5%, #AAAAAA 5%, #AAAAAA 100%);
 }
 
 .bgshade.red {
     border: 3pt #CC3333 solid;
-    background: linear-gradient(135deg, #CC3333 0%, #CC3333 5%, #888888 5%, #888888 100%);
+    background: linear-gradient(135deg, #CC3333 0%, #CC3333 5%, #AAAAAA 5%, #AAAAAA 100%);
 }
-
-
-/*
-.bgshade.purple {
-    background: linear-gradient(45deg, #888888 0%, #888888 88%, #663399 88%, #663399 100%);
-}
-
-.bgshade.green {
-    background: linear-gradient(45deg, #888888 0%, #888888 88%, #339966 88%, #339966 100%);
-}
-
-.bgshade.orange {
-    background: linear-gradient(45deg, #888888 0%, #888888 88%, #FF9900 88%, #FF9900 100%);
-}
-
-.bgshade.red {
-    background: linear-gradient(45deg, #888888 0%, #888888 88%, #CC3333 88%, #CC3333 100%);
-}
-*/
