@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" style="background: url('../assets/MostlySecurity-WideFree.png') no-repeat left center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;">
+<head>
+    <meta charset="utf-8">
+    <title>Mostly Security - Episodes</title>
+    <meta name="description" content="Mostly Security Episodes">
+    <meta name="author" content="Mostly Security">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../normalize.css">
+    <link rel="stylesheet" href="../skeleton.css">
+    <link rel="stylesheet" href="../mostlysecurity.css">
+    <link rel="apple-touch-icon" sizes="57x57" href="../favicons/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="../favicons/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="../favicons/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="../favicons/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="../favicons/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="../favicons/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="../favicons/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="../favicons/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicons/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="../favicons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="../favicons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicons/favicon-16x16.png">
+    <link rel="manifest" href="../favicons/manifest.json">
+    <meta name="msapplication-TileColor" content="#232323">
+    <meta name="msapplication-TileImage" content="../favicons/ms-icon-144x144.png">
+    <meta name="theme-color" content="#232323">
+
+    <style type="text/css">
+        body {
+            font-weight: 400;
+            font-family: "Avenir", Helvetica, Arial, sans-serif;
+            color: #fff;
+            font-size: large; /* A bit smaller than x-large for more content */
+        }
+        .episode-date {
+            font-size: 0.9em;
+            color: #ddd;
+        }
+        .episode-description {
+            color: #232323;
+        }
+        .episode-description p {
+            margin-bottom: 1rem;
+        }
+        .episode-description audio {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .episode-length {
+            font-size: 0.8em;
+            margin-bottom: 1rem;
+        }
+        .podcast-image {
+            float: left;
+            margin-right: 20px;
+            border-radius: 10px;
+            width: 100px;
+            height: 100px;
+        }
+        .podcast-info-container {
+            overflow: auto; /* Clear float */
+            padding: 10px;
+        }
+        #loader {
+            padding: 20px;
+            text-align: center;
+        }
+        #message-box {
+            padding: 20px;
+            text-align: center;
+            color: #ffcdd2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" style="margin-top: 20pt;">
+        
+        <div class="row header">
+            <div class="twelve columns" id="podcast-info-wrapper">
+                <!-- Podcast info will be rendered here -->
+            </div>
+        </div>
+
+        <div class="row header">
+            <div class="twelve columns">
+                <div id="episodes-container">
+                    <!-- Episode cards will be inserted here -->
+                </div>
+                <div id="loader" style="display: none;">Loading...</div>
+                <div id="message-box"></div>
+            </div>
+        </div>
+        <div class="row header" style="margin-top: 10pt;">
+            <div class="twelve columns">
+                <a href="/" style="color: #fff;">&larr; Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loader = document.getElementById('loader');
+        const episodesContainer = document.getElementById('episodes-container');
+        const podcastInfoWrapper = document.getElementById('podcast-info-wrapper');
+        const messageBox = document.getElementById('message-box');
+
+        document.addEventListener('DOMContentLoaded', handleRenderClick);
+        
+        async function handleRenderClick() {
+            const rssUrl = "http://podcast.mostlysecurity.com/rss";
+
+            // Reset UI
+            setLoadingState(true);
+            episodesContainer.innerHTML = '';
+            podcastInfoWrapper.innerHTML = '';
+            
+            try {
+                const response = await fetch(rssUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const str = await response.text();
+                const data = new window.DOMParser().parseFromString(str, "text/xml");
+                
+                displayPodcastInfo(data);
+
+                const items = Array.from(data.querySelectorAll("item")); //.slice(0, 5);
+                if (items.length === 0) {
+                    showMessage('No episodes found in this feed.');
+                } else {
+                    items.forEach((item, index) => renderEpisode(item, index));
+                }
+
+            } catch (error) {
+                console.error("Error fetching or parsing RSS feed:", error);
+                showMessage('Failed to fetch or parse the RSS feed. Please check the URL and try again.');
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        function displayPodcastInfo(data) {
+            const title = data.querySelector("channel > title")?.textContent || 'No title found';
+            const description = data.querySelector("channel > description")?.textContent || 'No description available.';
+            const imageUrl = data.querySelector("channel > image > url")?.textContent;
+
+            let imageHtml = '';
+            if (imageUrl) {
+                imageHtml = `<img src="${imageUrl}" alt="${title} cover art" class="podcast-image">`;
+            }
+            
+            podcastInfoWrapper.innerHTML = `
+                <div class="bgshade black">
+                    <div class="podcast-info-container">
+                        <strong class="title">${title}</strong>
+                        <p>${description}</p>
+                        <iframe title="Embed Player" style="border:none" src="https://play.libsyn.com/embed/destination/id/711007/height/412/theme/modern/size/large/thumbnail/yes/custom-color/232323/playlist-height/200/direction/backward/download/yes/font-color/FFFFFF" height="412" width="100%" scrolling="no" allowfullscreen="" webkitallowfullscreen="true" mozallowfullscreen="true" oallowfullscreen="true" msallowfullscreen="true"></iframe>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEpisode(item, index) {
+            const colors = ['purple', 'green', 'orange', 'red'];
+            const color = colors[index % colors.length];
+
+            const title = item.querySelector("title")?.textContent || 'No title';
+            const pubDate = item.querySelector("pubDate")?.textContent ? new Date(item.querySelector("pubDate").textContent).toLocaleDateString() : 'No date';
+            const descriptionNode = item.querySelector("description");
+            const duration = item.querySelector("duration")?.textContent || '';
+            const descriptionHtml = descriptionNode?.textContent || '<p>No description available.</p>';
+
+            const card = document.createElement('div');
+            card.className = `bgshade ${color}`;
+            card.innerHTML = `
+                <strong class="episode">${title}</strong>
+                <div class="episode-date">${pubDate} ${duration}</div>
+                ${duration ? `<div class="episode-length">${duration}</div>` : ''}
+                <div class="episode-description">${descriptionHtml}</div>
+            `;
+            episodesContainer.appendChild(card);
+        }
+        
+        function setLoadingState(isLoading) {
+            loader.style.display = isLoading ? 'block' : 'none';
+            if (isLoading) {
+                messageBox.innerHTML = '';
+            }
+        }
+
+        function showMessage(message) {
+            messageBox.innerHTML = message;
+        }
+
+    </script>
+</body>
+</html>

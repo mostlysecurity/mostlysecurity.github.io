@@ -25,6 +25,20 @@
     line-height: 1.2;
 }
 
+strong.title {
+    font-size: larger;
+    letter-spacing: 0px;
+    text-shadow: 1px 1px 0px #232323;
+    text-transform: uppercase;
+}
+
+
+strong.episode {
+    font-size: larger;
+    letter-spacing: 0px;
+    text-shadow: 1px 1px 0px #232323;
+}
+
 a {
     color: #232323;
     font-weight: bold;
@@ -68,7 +82,6 @@ a:hover {
     color: #990000; 
 }
 
-
 .bgbox {
     border: 1px #ffffff solid;
 }
@@ -101,3 +114,27 @@ a:hover {
     border: 3pt #CC3333 solid;
     background: linear-gradient(135deg, #CC3333 0%, #CC3333 5%, #AAAAAA 5%, #AAAAAA 100%);
 }
+
+.bgshade.black {
+    border: 3pt #232323 solid;
+    background: linear-gradient(135deg, #232323 0%, #232323 5%, #888888 5%, #888888 100%);
+}
+
+
+/*
+.bgshade.purple {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #663399 88%, #663399 100%);
+}
+
+.bgshade.green {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #339966 88%, #339966 100%);
+}
+
+.bgshade.orange {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #FF9900 88%, #FF9900 100%);
+}
+
+.bgshade.red {
+    background: linear-gradient(45deg, #888888 0%, #888888 88%, #CC3333 88%, #CC3333 100%);
+}
+*/
