@@ -53,7 +53,6 @@
         }
         .podcast-image {
             float: left;
-            margin-top: 20px;
             margin-right: 20px;
             border-radius: 10px;
             width: 128px;
@@ -63,12 +62,31 @@
             overflow: auto; /* Clear float */
             padding: 10px;
         }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.8em;
+        }
         audio {
             display: block;
             width: 100%;
             margin: 1em auto;
             height: 54px;
+            /* border-radius: 27px; */
         }
+        /* .audio-purple {
+            border: 3px solid #663399;
+        }
+        .audio-green {
+            border: 3px solid #339966;
+        }
+        .audio-orange {
+            border: 3px solid #ff9933;
+        }
+        .audio-red {
+            border: 3px solid #cc3333;
+        } */
         #loader {
             padding: 20px;
             text-align: center;
@@ -146,7 +164,7 @@
                     // Check if it's a mobile device and limit episodes
                     if (window.mobileAndTabletCheck()) {
                         items = items.slice(0, 20);
-                        showMessage('Displaying the latest 20 episodes for mobile devices.');
+                        showMessage('Showing latest 20 episodes');
                     }
 
                     items.forEach((item, index) => renderEpisode(item, index));
@@ -172,9 +190,9 @@
             
             podcastInfoWrapper.innerHTML = `
                 <div class="bgshade black">
-                    ${imageHtml}
                     <div class="podcast-info-container">
-                        <strong class="title">${title}</strong>
+                        ${imageHtml}
+                        <!-- <strong class="title">${title}</strong> -->
                         <p>${description}</p>
                     </div>
                 </div>
