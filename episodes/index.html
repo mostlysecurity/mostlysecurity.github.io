@@ -138,8 +138,8 @@
         document.addEventListener('DOMContentLoaded', handleRenderClick);
         
         async function handleRenderClick() {
-            // const rssUrl = "https://mostlysecurity.com/rss";
-            const rssUrl = "https://feeds.libsyn.com/121466/rss";
+            const rssUrl = "https://rss.mostlysecurity.com/";
+            // const rssUrl = "https://feeds.libsyn.com/121466/rss";
  
             // Reset UI
             setLoadingState(true);
@@ -147,7 +147,13 @@
             podcastInfoWrapper.innerHTML = '';
             
             try {
-                const response = await fetch(rssUrl);
+                let response = await fetch(rssUrl, { redirect: 'follow' });
+
+                // If the initial fetch was a redirect, get the text from the final URL
+                // This handles cases where the initial RSS URL redirects to another RSS URL
+                if (response.redirected) {
+                    response = await fetch(response.url);
+                }
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
