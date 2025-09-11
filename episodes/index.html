@@ -74,8 +74,11 @@
             setLoadingState(true);
             episodesContainer.innerHTML = '';
             podcastInfoWrapper.innerHTML = '';
-            
+
             try {
+                const params = new URLSearchParams(window.location.search);
+                const episodeNumber = params.get('e');
+            
                 let response = await fetch(rssUrl, { redirect: 'follow' });
 
                 // If the initial fetch was a redirect, get the text from the final URL
@@ -94,16 +97,32 @@
                 displayPodcastInfo(data);
 
                 let items = Array.from(data.querySelectorAll("item"));
-                if (items.length === 0) {
-                    showMessage('No episodes found in this feed.');
+                if (!episodeNumber) {
+                    if (items.length === 0) {
+                        showMessage('No episodes found in this feed.');
+                    } else {
+                        // Check if it's a mobile device and limit episodes
+                        if (window.mobileAndTabletCheck()) {
+                            items = items.slice(0, 20);
+                            showMessage('Showing latest 20 episodes');
+                        }
+
+                        items.forEach((item, index) => renderEpisode(item, index));
+                    }
                 } else {
-                    // Check if it's a mobile device and limit episodes
-                    if (window.mobileAndTabletCheck()) {
-                        items = items.slice(0, 20);
-                        showMessage('Showing latest 20 episodes');
+                    itunesEpisodeSelector = "*|episode"
+                    targetEpisode = items.find(item => {
+                        itunesEpisode = item.querySelector(itunesEpisodeSelector)?.textContent || '';
+                        match = itunesEpisode == episodeNumber;
+                        return match;
+                    });
+
+                    if (targetEpisode) {
+                        renderEpisode(targetEpisode);
+                    } else {
+                        showMessage(`Episode ${episodeNumber} not found.`);
                     }
 
-                    items.forEach((item, index) => renderEpisode(item, index));
                 }
 
             } catch (error) {
@@ -136,8 +155,11 @@
         }
 
         function renderEpisode(item, index) {
-            const colors = ['purple', 'green', 'orange', 'red'];
-            const color = colors[index % colors.length];
+            color = 'black';
+            if (index) {
+                colors = ['purple', 'green', 'orange', 'red'];
+                color = colors[index % colors.length];
+            }
 
             const title = item.querySelector("title")?.textContent || 'No title';
             const pubDate = item.querySelector("pubDate")?.textContent ? new Date(item.querySelector("pubDate").textContent).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No date';
