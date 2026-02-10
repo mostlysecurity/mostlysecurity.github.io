@@ -72,16 +72,19 @@
         async function handleRenderClick() {
             // const rssUrl = "https://rss.mostlysecurity.com/";
             const rssUrl = "https://feeds.libsyn.com/121466/rss";
+            const params = new URLSearchParams(window.location.search);
+            const episodeParam = params.get('e');
+            const episodeNumber = episodeParam ? parseInt(episodeParam, 10) : null;
+            const hasEpisodeFilter = Number.isFinite(episodeNumber);
  
             // Reset UI
             setLoadingState(true);
             episodesContainer.innerHTML = '';
             podcastInfoWrapper.innerHTML = '';
+            messageBox.innerHTML = '';
+            setBackToTopVisible(false);
             
             try {
-                const params = new URLSearchParams(window.location.search);
-                const episodeNumber = params.get('e');
-            
                 let response = await fetch(rssUrl, { redirect: 'follow' });
 
                 // If the initial fetch was a redirect, get the text from the final URL
@@ -99,17 +102,26 @@
                 
                 displayPodcastInfo(data);
 
-                let items = Array.from(data.querySelectorAll("item"));
-                if (items.length === 0) {
+                allItems = Array.from(data.querySelectorAll("item"));
+                if (allItems.length === 0) {
                     showMessage('No episodes found in this feed.');
+                    setBackToTopVisible(false);
                 } else {
-                    // Check if it's a mobile device and limit episodes
-                    if (window.mobileAndTabletCheck()) {
-                        items = items.slice(0, 20);
-                        showMessage('Showing latest 20 episodes');
+                    if (hasEpisodeFilter) {
+                        const match = allItems.find((item) => getEpisodeNumber(item) === episodeNumber);
+                        if (match) {
+                            renderEpisode(match, 0);
+                            showMessage('');
+                        } else {
+                            showMessage('Episode not found.');
+                        }
+                        setLoadingState(false);
+                    } else {
+                        nextIndex = 0;
+                        setLoadingState(false);
+                        setupInfiniteScroll();
+                        loadNextBatch();
                     }
-
-                    items.forEach((item, index) => renderEpisode(item, index));
                 }
 
             } catch (error) {
@@ -142,9 +154,9 @@
         }
 
         function renderEpisode(item, index) {
-            color = 'black';
+            let color = 'black';
             if (index) {
-                colors = ['purple', 'green', 'orange', 'red'];
+                const colors = ['purple', 'green', 'orange', 'red'];
                 color = colors[index % colors.length];
             }
 
@@ -254,6 +266,27 @@
             } else {
                 backToTop.classList.remove('is-visible');
             }
+        }
+
+        function getEpisodeNumber(item) {
+            const itunesNumber = item.querySelector("itunes\\:episode, episode")?.textContent;
+            if (itunesNumber) {
+                const parsed = parseInt(itunesNumber, 10);
+                if (Number.isFinite(parsed)) {
+                    return parsed;
+                }
+            }
+
+            const title = item.querySelector("title")?.textContent || '';
+            const match = title.match(/\b(?:ep(?:isode)?\s*)?(\d{1,4})\b/i);
+            if (match) {
+                const parsed = parseInt(match[1], 10);
+                if (Number.isFinite(parsed)) {
+                    return parsed;
+                }
+            }
+
+            return null;
         }
 
     </script>
