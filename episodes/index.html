@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../normalize.css">
     <link rel="stylesheet" href="../skeleton.css">
     <link rel="stylesheet" href="../mostlysecurity.css">
+    <link rel="stylesheet" href="episode.css">
     <link rel="apple-touch-icon" sizes="57x57" href="../favicons/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="../favicons/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="../favicons/apple-icon-72x72.png">
@@ -69,17 +70,25 @@
         document.addEventListener('DOMContentLoaded', handleRenderClick);
         
         async function handleRenderClick() {
+            // const rssUrl = "https://rss.mostlysecurity.com/";
             const rssUrl = "https://feeds.libsyn.com/121466/rss";
  
             // Reset UI
             setLoadingState(true);
             episodesContainer.innerHTML = '';
             podcastInfoWrapper.innerHTML = '';
-            messageBox.innerHTML = '';
-            setBackToTopVisible(false);
             
             try {
-                const response = await fetch(rssUrl);
+                const params = new URLSearchParams(window.location.search);
+                const episodeNumber = params.get('e');
+            
+                let response = await fetch(rssUrl, { redirect: 'follow' });
+
+                // If the initial fetch was a redirect, get the text from the final URL
+                // This handles cases where the initial RSS URL redirects to another RSS URL
+                if (response.redirected) {
+                    response = await fetch(response.url);
+                }
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -90,15 +99,17 @@
                 
                 displayPodcastInfo(data);
 
-                allItems = Array.from(data.querySelectorAll("item"));
-                if (allItems.length === 0) {
+                let items = Array.from(data.querySelectorAll("item"));
+                if (items.length === 0) {
                     showMessage('No episodes found in this feed.');
-                    setBackToTopVisible(false);
                 } else {
-                    nextIndex = 0;
-                    setLoadingState(false);
-                    setupInfiniteScroll();
-                    loadNextBatch();
+                    // Check if it's a mobile device and limit episodes
+                    if (window.mobileAndTabletCheck()) {
+                        items = items.slice(0, 20);
+                        showMessage('Showing latest 20 episodes');
+                    }
+
+                    items.forEach((item, index) => renderEpisode(item, index));
                 }
 
             } catch (error) {
@@ -131,8 +142,11 @@
         }
 
         function renderEpisode(item, index) {
-            const colors = ['purple', 'green', 'orange', 'red'];
-            const color = colors[index % colors.length];
+            color = 'black';
+            if (index) {
+                colors = ['purple', 'green', 'orange', 'red'];
+                color = colors[index % colors.length];
+            }
 
             const title = item.querySelector("title")?.textContent || 'No title';
             const pubDate = item.querySelector("pubDate")?.textContent ? new Date(item.querySelector("pubDate").textContent).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'No date';

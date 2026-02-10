@@ -1,0 +1,57 @@
+body {
+    font-weight: 400;
+    font-family: "Avenir", Helvetica, Arial, sans-serif;
+    color: #fff;
+    font-size: large; /* A bit smaller than x-large for more content */
+}
+.episode-date {
+    font-size: 0.9em;
+    color: #ddd;
+}
+.episode-description {
+    color: #232323;
+}
+.episode-description p {
+    margin-bottom: 1rem;
+}
+.episode-description audio {
+    width: 100%;
+    margin-top: 1rem;
+}
+.episode-length {
+    font-size: 0.8em;
+    margin-bottom: 1rem;
+}
+.podcast-image {
+    float: left;
+    margin-right: 20px;
+    border-radius: 10px;
+    width: 128px;
+    height: 128px;
+}
+.podcast-info-container {
+    overflow: auto; /* Clear float */
+    padding: 10px;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8em;
+}
+audio {
+    display: block;
+    width: 100%;
+    margin: 1em auto;
+    height: 54px;
+    /* border-radius: 27px; */
+}
+#loader {
+    padding: 20px;
+    text-align: center;
+}
+#message-box {
+    padding: 20px;
+    text-align: center;
+    color: #ffcdd2;
+}
