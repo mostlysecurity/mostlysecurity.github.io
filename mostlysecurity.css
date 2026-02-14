@@ -1,3 +1,127 @@
+.ms-bg {
+    background: url("/assets/MostlySecurity-WideFree.png") no-repeat left center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-color: #232323;
+}
+
+.ms-body {
+    font-weight: 400;
+    font-family: "Avenir", Helvetica, Arial, sans-serif;
+    color: #fff;
+}
+
+.ms-body-home {
+    font-size: x-large;
+}
+
+.ms-body-episodes {
+    font-size: large;
+}
+
+.main-container {
+    margin-top: 20pt;
+}
+
+.home-strong {
+    font-family: "Avenir Next Condensed Bold", "Avenir Next", "Avenir", Helvetica, Arial, sans-serif;
+    font-size: larger;
+    letter-spacing: -3px;
+    text-shadow: 1px 1px 0px #232323;
+}
+
+.ms-body-episodes .episode-date {
+    font-size: 0.9em;
+    color: #ddd;
+}
+
+.ms-body-episodes .episode-description {
+    color: #232323;
+}
+
+.ms-body-episodes .episode-description p {
+    margin-bottom: 1rem;
+}
+
+.ms-body-episodes .episode-description audio {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.ms-body-episodes .episode-length {
+    font-size: 0.8em;
+    margin-bottom: 1rem;
+}
+
+.ms-body-episodes .podcast-image {
+    float: left;
+    margin-right: 20px;
+    border-radius: 10px;
+    width: 128px;
+    height: 128px;
+}
+
+.ms-body-episodes .podcast-info-container {
+    overflow: auto;
+    padding: 10px;
+}
+
+.ms-body-episodes ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8em;
+}
+
+.ms-body-episodes audio {
+    display: block;
+    width: 100%;
+    margin: 1em auto;
+    height: 54px;
+}
+
+.ms-body-episodes #loader {
+    padding: 20px;
+    text-align: center;
+    display: block;
+}
+
+.ms-body-episodes #loader.is-idle {
+    padding: 1px;
+    opacity: 0;
+}
+
+.ms-body-episodes #message-box {
+    padding: 20px;
+    text-align: center;
+    color: #ffcdd2;
+}
+
+.back-link {
+    color: #fff;
+}
+
+.back-to-top {
+    position: sticky;
+    bottom: 20px;
+    float: right;
+    display: inline-block;
+    margin: 10px 10px 0 0;
+    padding: 6px 10px;
+    background-color: rgba(35, 35, 35, 0.85);
+    border: 1px solid #ffffff;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.back-to-top.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .header {
     margin-top: 10pt;
 }
