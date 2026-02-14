@@ -97,6 +97,11 @@ audio {
     padding-right: 10pt;
 }
 
+.bgshade.blue {
+    border: 3pt #3366cc solid;
+    background: linear-gradient(135deg, #3366cc 0%, #3366cc 5%, #AAAAAA 5%, #AAAAAA 100%);
+}
+
 .search-label {
     display: block;
     margin-bottom: 8px;
@@ -138,7 +143,9 @@ audio {
 
 .search-modal-content.bgshade {
     border: 3pt #3366cc solid;
-    background: linear-gradient(135deg, #3366cc 0%, #3366cc 5%, #888888 5%, #888888 100%);
+    background:
+        linear-gradient(135deg, #3366cc 0 28px, transparent 28px) top left / 56px 56px no-repeat,
+        #888888;
 }
 
 .search-modal-header {

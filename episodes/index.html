@@ -97,6 +97,7 @@
         const searchResultsClose = document.getElementById('search-results-close');
 
         let allEpisodes = [];
+        let lastSearchResultCount = 0;
 
         window.mobileAndTabletCheck = function() {
             let check = false;
@@ -196,6 +197,16 @@
                 closeSearchModal();
             }
         });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') {
+                return;
+            }
+
+            const modalIsOpen = searchModal.classList.contains('open');
+            if (modalIsOpen) {
+                closeSearchModal();
+            }
+        });
 
         function displayPodcastInfo(data) {
             const title = data.querySelector("channel > title")?.textContent || 'No title found';
@@ -220,7 +231,9 @@
 
         function renderEpisode(item, index, options = {}) {
             let color = 'black';
-            if (index) {
+            if (index === 0 && !options.showCloseButton) {
+                color = 'blue';
+            } else if (index) {
                 const colors = ['purple', 'green', 'orange', 'red'];
                 color = colors[index % colors.length];
             }
@@ -315,6 +328,7 @@
         }
 
         function renderSearchResults(results, query) {
+            lastSearchResultCount = results.length;
             searchResultsSummary.textContent = `${results.length} match${results.length === 1 ? '' : 'es'} for "${query}"`;
 
             if (results.length === 0) {
