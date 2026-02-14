@@ -149,6 +149,10 @@
     line-height: 1.2;
 }
 
+strong {
+    font-weight: bolder;
+}
+
 strong.title {
     font-size: larger;
     letter-spacing: 0px;

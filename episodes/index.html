@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="ms-bg">
+<html lang="en" class="ms-bg" style="background: url('../assets/MostlySecurity-WideFree.png') no-repeat left center fixed; -webkit-background-size: cover; -moz-background-size: cover; -o-background-size: cover; background-size: cover;">
 <head>
     <meta charset="utf-8">
     <title>Mostly Security - Episodes</title>
@@ -30,6 +30,9 @@
     
 </head>
 <body class="ms-body ms-body-episodes" id="top">
+    <a href="/index.html" class="home-icon-link" aria-label="Go to home page">
+        <img src="/favicons/favicon-32x32.png" alt="Home" class="home-icon-image">
+    </a>
     <div class="container main-container">
         
         <div class="row header">
@@ -106,17 +109,12 @@
         async function handleRenderClick() {
             // const rssUrl = "https://rss.mostlysecurity.com/";
             const rssUrl = "https://feeds.libsyn.com/121466/rss";
-            const params = new URLSearchParams(window.location.search);
-            const episodeParam = params.get('e');
-            const episodeNumber = episodeParam ? parseInt(episodeParam, 10) : null;
-            const hasEpisodeFilter = Number.isFinite(episodeNumber);
  
             // Reset UI
             setLoadingState(true);
             episodesContainer.innerHTML = '';
             podcastInfoWrapper.innerHTML = '';
             messageBox.innerHTML = '';
-            setBackToTopVisible(false);
             
             try {
                 const params = new URLSearchParams(window.location.search);
@@ -165,20 +163,16 @@
                         items.forEach((item, index) => renderEpisode(item, index));
                     }
                 } else {
-                    itunesEpisodeSelector = "*|episode"
-                    targetEpisode = items.find(item => {
-                        itunesEpisode = item.querySelector(itunesEpisodeSelector)?.textContent || '';
-                        match = itunesEpisode == episodeNumber;
-                        return match;
+                    const itunesEpisodeSelector = "*|episode";
+                    const targetEpisode = items.find(item => {
+                        const itunesEpisode = item.querySelector(itunesEpisodeSelector)?.textContent || '';
+                        return itunesEpisode === episodeNumber;
                     });
 
                     if (targetEpisode) {
                         renderEpisode(targetEpisode, 0, { showCloseButton: true });
                     } else {
-                        nextIndex = 0;
-                        setLoadingState(false);
-                        setupInfiniteScroll();
-                        loadNextBatch();
+                        showMessage(`Episode ${episodeNumber} not found.`);
                     }
                 }
 
@@ -225,7 +219,7 @@
         }
 
         function renderEpisode(item, index, options = {}) {
-            color = 'black';
+            let color = 'black';
             if (index) {
                 const colors = ['purple', 'green', 'orange', 'red'];
                 color = colors[index % colors.length];
@@ -261,67 +255,6 @@
                 <audio controls preload="none" src="${mp3Url}"></audio>
             `;
             episodesContainer.appendChild(card);
-        }
-
-        function loadNextBatch() {
-            if (isAppending) {
-                return;
-            }
-
-            if (nextIndex >= allItems.length) {
-                showMessage('End of episodes.');
-                setBackToTopVisible(true);
-                if (observer) {
-                    observer.disconnect();
-                }
-                setLoadingState(false);
-                return;
-            }
-
-            isAppending = true;
-            setLoadingState(true);
-
-            const slice = allItems.slice(nextIndex, nextIndex + batchSize);
-            slice.forEach((item, index) => renderEpisode(item, nextIndex + index));
-            nextIndex += slice.length;
-
-            isAppending = false;
-            setLoadingState(false);
-
-            if (nextIndex >= allItems.length) {
-                showMessage('End of episodes.');
-                setBackToTopVisible(true);
-                if (observer) {
-                    observer.disconnect();
-                }
-            } else {
-                showMessage('');
-                setBackToTopVisible(false);
-            }
-        }
-
-        function setupInfiniteScroll() {
-            if (observer) {
-                observer.disconnect();
-            }
-
-            if ('IntersectionObserver' in window) {
-                observer = new IntersectionObserver((entries) => {
-                    if (entries.some((entry) => entry.isIntersecting)) {
-                        loadNextBatch();
-                    }
-                }, { root: null, rootMargin: '200px' });
-                observer.observe(loader);
-            } else {
-                window.addEventListener('scroll', handleScrollFallback);
-            }
-        }
-
-        function handleScrollFallback() {
-            const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
-            if (nearBottom) {
-                loadNextBatch();
-            }
         }
 
         function setLoadingState(isLoading) {
