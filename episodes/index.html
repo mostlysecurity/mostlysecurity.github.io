@@ -36,6 +36,18 @@
             </div>
         </div>
 
+        <div class="row header" id="search-section" style="margin-bottom: 10pt;">
+            <div class="twelve columns">
+                <div class="bgshade black search-container">
+                    <label for="episode-search-input" class="search-label">Search episodes</label>
+                    <div class="search-controls">
+                        <input id="episode-search-input" type="text" placeholder="Search title, subject, or description">
+                        <button id="episode-search-button" type="button">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row header">
             <div class="twelve columns">
                 <div id="episodes-container">
@@ -52,11 +64,33 @@
         </div>
     </div>
 
+    <div id="search-results-modal" class="search-modal" aria-hidden="true">
+        <div class="search-modal-content bgshade black" role="dialog" aria-modal="true" aria-labelledby="search-results-title">
+            <div class="search-modal-header">
+                <strong id="search-results-title">Search Results</strong>
+                <div class="search-modal-actions">
+                    <button id="search-results-close" type="button" class="search-close-button" aria-label="Close search results">&times;</button>
+                </div>
+            </div>
+            <div id="search-results-summary" class="search-results-summary"></div>
+            <div id="search-results-list" class="search-results-list"></div>
+        </div>
+    </div>
+
     <script>
         const loader = document.getElementById('loader');
         const episodesContainer = document.getElementById('episodes-container');
         const podcastInfoWrapper = document.getElementById('podcast-info-wrapper');
         const messageBox = document.getElementById('message-box');
+        const searchInput = document.getElementById('episode-search-input');
+        const searchButton = document.getElementById('episode-search-button');
+        const searchSection = document.getElementById('search-section');
+        const searchModal = document.getElementById('search-results-modal');
+        const searchResultsList = document.getElementById('search-results-list');
+        const searchResultsSummary = document.getElementById('search-results-summary');
+        const searchResultsClose = document.getElementById('search-results-close');
+
+        let allEpisodes = [];
 
         window.mobileAndTabletCheck = function() {
             let check = false;
@@ -78,6 +112,10 @@
             try {
                 const params = new URLSearchParams(window.location.search);
                 const episodeNumber = params.get('e');
+
+                if (episodeNumber) {
+                    searchSection.style.display = 'none';
+                }
             
                 let response = await fetch(rssUrl, { redirect: 'follow' });
 
@@ -97,6 +135,14 @@
                 displayPodcastInfo(data);
 
                 let items = Array.from(data.querySelectorAll("item"));
+                allEpisodes = items.map((item, index) => ({
+                    item,
+                    episodeNumber: getEpisodeNumber(item, index),
+                    title: item.querySelector("title")?.textContent || 'No title',
+                    subject: getEpisodeSubject(item),
+                    description: item.querySelector("description")?.textContent || ''
+                }));
+
                 if (!episodeNumber) {
                     if (items.length === 0) {
                         showMessage('No episodes found in this feed.');
@@ -118,7 +164,7 @@
                     });
 
                     if (targetEpisode) {
-                        renderEpisode(targetEpisode);
+                        renderEpisode(targetEpisode, 0, { showCloseButton: true });
                     } else {
                         showMessage(`Episode ${episodeNumber} not found.`);
                     }
@@ -132,6 +178,19 @@
                 setLoadingState(false);
             }
         }
+
+        searchButton.addEventListener('click', handleSearchClick);
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                handleSearchClick();
+            }
+        });
+        searchResultsClose.addEventListener('click', closeSearchModal);
+        searchModal.addEventListener('click', (event) => {
+            if (event.target === searchModal) {
+                closeSearchModal();
+            }
+        });
 
         function displayPodcastInfo(data) {
             const title = data.querySelector("channel > title")?.textContent || 'No title found';
@@ -154,7 +213,7 @@
             `;
         }
 
-        function renderEpisode(item, index) {
+        function renderEpisode(item, index, options = {}) {
             color = 'black';
             if (index) {
                 colors = ['purple', 'green', 'orange', 'red'];
@@ -174,10 +233,17 @@
                 downloadLinkHtml = `<a href="${mp3Url}" download>Download</a>`;
             }
 
+            const closeButtonHtml = options.showCloseButton
+                ? '<a class="button episode-close-link" href="/episodes/index.html" aria-label="Close episode view">&times;</a>'
+                : '';
+
             const card = document.createElement('div');
             card.className = `bgshade ${color}`;
             card.innerHTML = `
-                <strong class="episode">${title}</strong>
+                <div class="episode-header-row">
+                    <strong class="episode">${title}</strong>
+                    ${closeButtonHtml}
+                </div>
                 <div class="episode-date">${pubDate}</div>
                 <div class="episode-length">${duration ? `Time: ${duration} &nbsp;&nbsp;` : ''} ${downloadLinkHtml}</div>
                 <div class="episode-description">${descriptionHtml}</div>
@@ -195,6 +261,189 @@
 
         function showMessage(message) {
             messageBox.innerHTML = message;
+        }
+
+        function handleSearchClick() {
+            const query = searchInput.value.trim();
+            if (!query) {
+                showMessage('Enter text to search the RSS feed.');
+                return;
+            }
+
+            if (allEpisodes.length === 0) {
+                showMessage('Episodes are still loading. Try searching again in a moment.');
+                return;
+            }
+
+            const results = allEpisodes
+                .map(episode => buildSearchResult(episode, query))
+                .filter(Boolean);
+
+            renderSearchResults(results, query);
+            openSearchModal();
+        }
+
+        function buildSearchResult(episode, query) {
+            const titleMatch = hasMatch(episode.title, query);
+            const subjectMatch = hasMatch(episode.subject, query);
+            const descriptionMatch = hasMatch(episode.description, query);
+
+            if (!titleMatch && !subjectMatch && !descriptionMatch) {
+                return null;
+            }
+
+            const safeTitle = titleMatch ? highlightAllMatches(episode.title, query) : escapeHtml(episode.title);
+            const safeSubject = subjectMatch ? highlightAllMatches(episode.subject, query) : escapeHtml(episode.subject);
+            const descriptionSnippet = descriptionMatch
+                ? buildContextSnippet(episode.description, query)
+                : buildLeadingSnippet(episode.description, 18);
+
+            return {
+                episodeNumber: episode.episodeNumber,
+                title: safeTitle,
+                subject: safeSubject,
+                snippet: descriptionSnippet
+            };
+        }
+
+        function renderSearchResults(results, query) {
+            searchResultsSummary.textContent = `${results.length} match${results.length === 1 ? '' : 'es'} for "${query}"`;
+
+            if (results.length === 0) {
+                searchResultsList.innerHTML = '<div class="search-result-empty">No matching episodes found.</div>';
+                return;
+            }
+
+            searchResultsList.innerHTML = results.map(result => {
+                const subjectHtml = result.subject
+                    ? `<div class="search-result-subject">Subject: ${result.subject}</div>`
+                    : '';
+
+                return `
+                    <a class="search-result-row" href="/episodes/?e=${encodeURIComponent(result.episodeNumber)}">
+                        <div class="search-result-episode">Episode ${escapeHtml(result.episodeNumber)}</div>
+                        <div class="search-result-title">${result.title}</div>
+                        ${subjectHtml}
+                        <div class="search-result-snippet">${result.snippet}</div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function openSearchModal() {
+            searchModal.classList.add('open');
+            searchModal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeSearchModal() {
+            searchModal.classList.remove('open');
+            searchModal.setAttribute('aria-hidden', 'true');
+        }
+
+        function getEpisodeSubject(item) {
+            const subjectSelectors = [
+                'subject',
+                '*|subject',
+                '*|subtitle',
+                '*|summary',
+                'category'
+            ];
+
+            for (const selector of subjectSelectors) {
+                const value = item.querySelector(selector)?.textContent?.trim();
+                if (value) {
+                    return value;
+                }
+            }
+
+            return '';
+        }
+
+        function getEpisodeNumber(item, index) {
+            const itunesEpisodeSelector = '*|episode';
+            const itunesEpisode = item.querySelector(itunesEpisodeSelector)?.textContent?.trim();
+            if (itunesEpisode) {
+                return itunesEpisode;
+            }
+
+            const title = item.querySelector('title')?.textContent || '';
+            const match = title.match(/episode\s*(\d+)/i);
+            if (match && match[1]) {
+                return match[1];
+            }
+
+            return String(index + 1);
+        }
+
+        function hasMatch(text, query) {
+            if (!text) {
+                return false;
+            }
+            return text.toLowerCase().includes(query.toLowerCase());
+        }
+
+        function buildContextSnippet(text, query) {
+            if (!text) {
+                return 'No description available.';
+            }
+
+            const words = text.replace(/\s+/g, ' ').trim().split(' ');
+            const loweredQuery = query.toLowerCase();
+            let wordIndex = -1;
+
+            for (let index = 0; index < words.length; index++) {
+                if (words[index].toLowerCase().includes(loweredQuery)) {
+                    wordIndex = index;
+                    break;
+                }
+            }
+
+            if (wordIndex === -1) {
+                return buildLeadingSnippet(text, 18);
+            }
+
+            const start = Math.max(0, wordIndex - 5);
+            const end = Math.min(words.length, wordIndex + 6);
+            const prefix = start > 0 ? '… ' : '';
+            const suffix = end < words.length ? ' …' : '';
+            const excerpt = words.slice(start, end).join(' ');
+
+            return `${prefix}${highlightAllMatches(excerpt, query)}${suffix}`;
+        }
+
+        function buildLeadingSnippet(text, wordCount) {
+            if (!text) {
+                return 'No description available.';
+            }
+
+            const words = text.replace(/\s+/g, ' ').trim().split(' ');
+            const excerpt = words.slice(0, wordCount).join(' ');
+            const suffix = words.length > wordCount ? ' …' : '';
+            return `${escapeHtml(excerpt)}${suffix}`;
+        }
+
+        function highlightAllMatches(text, query) {
+            if (!text) {
+                return '';
+            }
+
+            const escapedText = escapeHtml(text);
+            const safePattern = escapeRegExp(query);
+            const regex = new RegExp(`(${safePattern})`, 'ig');
+            return escapedText.replace(regex, '<mark>$1</mark>');
+        }
+
+        function escapeRegExp(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function escapeHtml(value) {
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
     </script>
